@@ -20,22 +20,24 @@
         
         function elevatorOnIdle() {
             var elevator = this;
-            console.log('Bored, going to pressed list');
+            var shit = elevator.getPressedFloors();
+            console.log('Bored, going to pressed list', shit);
             if(elevator.getPressedFloors().length > 0) {
-                elevator.getPressedFloors.forEach(function(floor) {
+                elevator.getPressedFloors.forEach(floor => {
                     console.log('Trying to call waitingOn array');
                     elevator.goToFloor(floor.floorNum());
-                });
+                })
             } else if (waitingOn.length) {
                 console.log('go on to the list of wait', waitingOn);
                 var n = waitingOn.shift();
                 elevator.goToFloor(n);
             } else {
+                console.log('Giving up going to')
                 elevator.goToFloor(0);
             }
         }
         function elevatorOnFloorButtonPressed(floorNum) {
-            console.log('Elevator button pressed to', floorNum)
+            // console.log('Elevator button pressed to', floorNum)
             let elevator = this;
             elevator.goToFloor(floorNum, true)
         }
