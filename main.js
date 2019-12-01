@@ -1,25 +1,44 @@
 {
     init: function(elevators, floors) {
-        var elevator = elevators[0]; // Let's use the first elevator
-        var elevator2 = elevators[1]; // Probably delete this later
-        // Whenever the elevator is idle (has no more queued destinations) ...
-        elevator.on("idle", function() {
-            // let's go to all the floors (or did we forget one?)
-            elevator.goToFloor(0);
-            elevator.goToFloor(1);
-            elevator.goToFloor(2);
+        console.clear();
+        // Whenever the elevator is idle (has no more queued destinations) ... 
+        floors.forEach(floor => {
+            floor.on('up_button_pressed', floorButtonPressed);
+            floor.on('down_button_pressed', floorButtonPressed);
+         });
+        // Establish waiting list
+        var waitingOn = [];
+        function floorButtonPressed() {
+            var floor = this;
+            waitingOn.push(floor.floorNum());
+        }
+        
+        elevators.forEach(elevator => {
+            elevator.on("idle", elevatorOnIdle);
+            elevator.on("floor_button_pressed", elevatorOnFloorButtonPressed);
         });
-        elevator.on("floor_button_pressed", function(floorNum) {
-            elevator.goToFloor(floorNum)
-        })
-        elevator2.on("idle", function() {
-            elevator2.goToFloor(0);
-            elevator2.goToFloor(1);
-            elevator2.goToFloor(2);
-        })
-        elevator2.on("floor_button_pressed", function(floorNum) {
-            elevator.goToFloor(floorNum)
-        })
+        
+        function elevatorOnIdle() {
+            var elevator = this;
+            console.log('Bored, going to pressed list');
+            if(elevator.getPressedFloors().length > 0) {
+                elevator.getPressedFloors.forEach(function(floor) {
+                    console.log('Trying to call waitingOn array');
+                    elevator.goToFloor(floor.floorNum());
+                });
+            } else if (waitingOn.length) {
+                console.log('go on to the list of wait', waitingOn);
+                var n = waitingOn.shift();
+                elevator.goToFloor(n);
+            } else {
+                elevator.goToFloor(0);
+            }
+        }
+        function elevatorOnFloorButtonPressed(floorNum) {
+            console.log('Elevator button pressed to', floorNum)
+            let elevator = this;
+            elevator.goToFloor(floorNum, true)
+        }
     },
     update: function(dt, elevators, floors) {
         // We normally don't need to do anything here
