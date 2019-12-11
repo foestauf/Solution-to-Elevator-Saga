@@ -2,6 +2,7 @@
     init: function(elevators, floors) {
         // Establish waiting list
         var waitingOn = [];
+        const maxFloor = floors.length-1;
         console.clear();
         floors.forEach(floor => {
             floor.on('up_button_pressed', floorButtonPressed);
@@ -9,8 +10,30 @@
          });
 
         elevators.forEach(elevator => {
+            console.log("Checking", elevator);
             elevator.on("floor_button_pressed", elevatorOnFloorButtonPressed);
             elevator.on("idle", elevatorOnIdle);
+            elevator.on("stopped_at_floor", function (floorNum) {
+                // do something here
+                // control up and down indicators
+                // TODO: control up down indicators better
+                switch (floorNum) {
+                    case 0:
+                        up = true;
+                        down = false;
+                        break;
+                    case maxFloor:
+                        up = false;
+                        down = true;
+                        break;
+                    default:
+                        up = true;
+                        down = true;
+                        break;
+                }
+                elevator.goingUpIndicator(up);
+                elevator.goingDownIndicator(down)
+            });
         });
 
         function floorButtonPressed() {
@@ -33,8 +56,10 @@
                 }
 
                 if (waitingOn[0] > elevator.currentFloor) {
+                    console.log("Going up");
                     waitingOn.sort(function (a, b) { return a - b });
                 } else {
+                    console.log("Going Down");
                     waitingOn.sort(function (a,b) {return b - a});
                 }
                 var n = waitingOn.shift();
