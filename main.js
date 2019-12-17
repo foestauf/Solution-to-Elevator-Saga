@@ -13,7 +13,7 @@
             console.log("Checking", elevator);
             elevator.on("floor_button_pressed", elevatorOnFloorButtonPressed);
             elevator.on("idle", elevatorOnIdle);
-            elevator.on("stopped_at_floor", function (floorNum) {
+            elevator.on("stopped_at_floor", floorNum => {
                 // do something here
                 // control up and down indicators
                 // TODO: control up down indicators better
