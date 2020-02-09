@@ -11,6 +11,14 @@
 
         elevators.forEach(elevator => {
             console.log("Checking", elevator);
+            elevator.on("passing_floor", floorNum => {
+                let floorRoster = floorNum;
+                if (this.getPressedFloors.includes(floorNum)) {
+                    elevator.goToFloor(floorNum);
+                }
+            });
+
+
             elevator.on("floor_button_pressed", elevatorOnFloorButtonPressed);
             elevator.on("idle", elevatorOnIdle);
             elevator.on("stopped_at_floor", floorNum => {
@@ -32,27 +40,29 @@
                         break;
                 }
                 elevator.goingUpIndicator(up);
-                elevator.goingDownIndicator(down)
+                elevator.goingDownIndicator(down);
             });
         });
 
         function floorButtonPressed() {
             var floor = this;
             waitingOn.push(floor.floorNum());
-        }   
-        
+        }
+
         function elevatorOnIdle() {
             var elevator = this;
             if(elevator.getPressedFloors().length > 0) {
                 elevator.getPressedFloors.forEach(floor => {
                     console.log('Using pressedFloors');
-                    elevator.goToFloor(floor.floorNum());
+                    console.log(floor.floorNum);
+                    elevator.goToFloor(...new Set(floor.floorNum()));
                 })
             } else if (waitingOn.length) {
                 console.log('Using WaitingOn', waitingOn);
                 if (waitingOn.length > 3) {
                     console.log("Cleaning up Array duplicates");
                     waitingOn = [...new Set(waitingOn)];
+                    console.log('New waiting list: ' + waitingOn);
                 }
 
                 if (waitingOn[0] > elevator.currentFloor) {
@@ -69,10 +79,12 @@
                 elevator.goToFloor(0);
             }
         }
- 
+
         function elevatorOnFloorButtonPressed(floorNum) {
             console.log('Elevator button pressed to', floorNum)
             let elevator = this;
+            let foors = floorNum;
+            console.log(floors);
             console.log(floorNum, elevator.currentFloor());
             elevator.goToFloor(floorNum, true)
         }
